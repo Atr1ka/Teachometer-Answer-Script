@@ -26,7 +26,7 @@ function main() {
             else {
                 console.log("Question " + qNum + " does not exist in this lesson (or there was an error)");
                 alert("Question " + qNum + " does not exist in this lesson (or there was an error)");
-                return -2; 
+                return -2;
             }
     }
 }
@@ -41,6 +41,7 @@ function getAnswer(qNum) {
             if (Object.hasOwn(q.contentDiv.setValueFields[i], 'radioCups'))
                 isRadio = i;
         }
+        console.log(isRadio)
         //if it isn't radio
         if (isRadio==-1) {
             //for each answer box
@@ -49,7 +50,10 @@ function getAnswer(qNum) {
                 let id = q.commentLogic.inputsWithCommentLetters[currLetter].UID;
                 //if type answer
                 if (q.commentLogic.inputsWithCommentLetters[currLetter].tagName=="input") {
-                    document.getElementById(id).value = parseFloat(parseFloat(q.commentLogic.engine.allVariablesAndFunctions[currLetter]._value).toPrecision(12));
+                    if (!isNaN(q.commentLogic.engine.allVariablesAndFunctions[currLetter]._value))
+                        document.getElementById(id).value = parseFloat(parseFloat(q.commentLogic.engine.allVariablesAndFunctions[currLetter]._value).toPrecision(12));
+                    else
+                    document.getElementById(id).value = q.commentLogic.engine.allVariablesAndFunctions[currLetter]._value;
                     document.getElementById(id).focus();
                     ICup.cupsById[id]._events['onblur'].forEach( e=> e(event) )
                 }
@@ -63,7 +67,7 @@ function getAnswer(qNum) {
                 }
             }
         }
-        //if is radio 
+        //if is radio
         else {
             let id = -1, ans = -1;
             //get answer
@@ -83,26 +87,28 @@ function getAnswer(qNum) {
             document.getElementById(id).checked = true;
             ICup.cupsById[id]._events['onclick'].forEach( e=> e(event) )
         }
-        
+
     }
     else if (q.classes[0]=="question") {
         //if its not radio
         if (!Object.hasOwn(q.contentDiv.setValueFields[0], 'radioCups')) {
             //for each answer
             for (let i=0;i<Object.keys(q.commentLogic.engine.correctAnswers).length;++i) {
-                let currLetter = Object.keys(q.commentLogic.inputsWithCommentLetters)[i];
-                let id = q.commentLogic.inputsWithCommentLetters[String.fromCharCode(i+97)].UID
+                let currLetter = Object.keys(q.commentLogic.engine.correctAnswers)[i];
+                let id = q.commentLogic.inputsWithCommentLetters[currLetter].UID
                 //if type answer
                 if (q.commentLogic.inputsWithCommentLetters[currLetter].tagName=="input") {
                     //type answer
-                    document.getElementById(id).value = parseFloat(parseFloat(q.commentLogic.engine.correctAnswers[String.fromCharCode(i+97)]).toPrecision(12));
-                    document.getElementById(id).focus();
+                    if (!isNaN(q.commentLogic.engine.correctAnswers[currLetter]))
+                        document.getElementById(id).value = parseFloat(parseFloat(q.commentLogic.engine.correctAnswers[currLetter]).toPrecision(12));
+                    else
+                        document.getElementById(id).value = q.commentLogic.engine.correctAnswers[currLetter];
                     ICup.cupsById[id]._events['onblur'].forEach( e=> e(event) )
                 }
                 //if select answer
                 else if (q.commentLogic.inputsWithCommentLetters[currLetter].tagName=="select") {
                     //select answer
-                    let ans = q.commentLogic.engine.correctAnswers[String.fromCharCode(i+97)];
+                    let ans = q.commentLogic.engine.correctAnswers[currLetter];
                     document.getElementById(id).value = ans;
                     document.getElementById(id).focus()
                     ICup.cupsById[id]._events['onchange'].forEach( e=> e(event) );
